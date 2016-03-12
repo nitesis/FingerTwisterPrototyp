@@ -5,25 +5,38 @@ using TouchScript.Gestures;
 public class StartController : MonoBehaviour
 {
 
-    public int PlayerNumber;
-    public GameController MainGameController;
+    public int ReadyDelay = 1;
+    public GameObject PointPrefab;
 
-    private LongPressGesture LongPressGestureScript;
+    public GameController MainGameController {
+        set {
+            MGameController = value;
+        }
+    }
+    public int PlayerNumber {
+        set {
+            PlayerN = value;
+        }
+    }
+
+    private int PlayerN;
+    private GameController MGameController;
+    private MetaGesture MetaGestureScript;
 
     void Start()
     {
-        LongPressGestureScript = GetComponent<LongPressGesture>();
-        LongPressGestureScript.LongPressed += delegate {
-            Debug.Log("pressed");
-        };
+        MetaGestureScript = GetComponent<MetaGesture>();
 
-        LongPressGestureScript.Cancelled += delegate {
-            Debug.Log("cancel");
-        };
+        MetaGestureScript.StateChanged += (sender, e) => Debug.Log(e.State);
+        
+    }
 
-        LongPressGestureScript.StateChanged += delegate {
-            Debug.Log("changed");
-        };
+    public void InstantiatePoints(int number)
+    {
+        for (int i = 0; i < number; i++) {
+            var point = (GameObject) Instantiate(PointPrefab, MGameController.GetRandomPosition(), Quaternion.identity);
+            point.GetComponent<Light>().color = PlayerInstantiator.Colors[PlayerN];
+        }
     }
 
 }

@@ -10,68 +10,35 @@ public class GameController : MonoBehaviour
     public CounterController PlayerCounter;
     public GameObject StartPrefab;
     public Material StartMaterial;
+    public int PointCount = 4;
 
-    private Color[] Colors = { Color.red, Color.blue, Color.green, Color.yellow };
+    public float HalfFrustumHeight {
+        get {
+            return FrustumHeight / 2;
+        }
+    }
+    public float HalfFrustumWidht {
+        get {
+            return FrustumWidth / 2;
+        }
+    }
+
     private float FrustumHeight;
     private float FrustumWidth;
-    private float HalfFrustumHeight;
-    private float HalfFrustumWidht;
+    private int PlayerCount;
+    private int PlayersReady;
+    private GameObject[] Starts;
 
     void Start()
     {
-        FrustumHeight = 2.0f * Mathf.Abs(CurrentCamera.transform.position.y) * Mathf.Tan(CurrentCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
-        FrustumWidth = FrustumHeight * CurrentCamera.aspect;
-        HalfFrustumHeight = FrustumHeight / 2;
-        HalfFrustumWidht = FrustumWidth / 2;
+        InitiateFrustums();
     }
 
     public void StartGame()
     {
         StartMenu.enabled = false;
-        InstantiatePlayers(PlayerCounter.PlayerCount);
-    }
-
-    private void InstantiatePlayers(int count)
-    {
-        for (int i = 0; i < count; i++)
-            InstantiatePlayer(i);
-    }
-
-    private void InstantiatePlayer(int number)
-    {
-        var startObject = (GameObject)Instantiate(StartPrefab, GetPlayerPosition(number), Quaternion.identity);
-        var startMaterial = Instantiate<Material>(StartMaterial);
-        startMaterial.color = Colors[number];
-        startObject.GetComponent<MeshRenderer>().material = startMaterial;
-        StartController startController = startObject.GetComponent<StartController>();
-        startController.PlayerNumber = number;
-        startController.MainGameController = this;
-    }
-
-    private Vector3 GetPlayerPosition(int number)
-    {
-        number %= 4;
-        float x = 0;
-        float z = 0;
-        switch (number) {
-        case 0:
-            x = GetRandomX();
-            z = HalfFrustumHeight;
-            break;
-        case 1:
-            x = GetRandomX();
-            z = -HalfFrustumHeight;
-            break;
-        case 2:
-            x = HalfFrustumWidht;
-            z = GetRandomZ();
-            break;
-        case 3:
-            x = -HalfFrustumWidht;
-            z = GetRandomZ();
-            break;
-        }
-        return new Vector3(x, 0, z);
+        Starts = PlayerInstantiator.InstantiateStarts(StartPrefab, StartMaterial, PlayerCounter.PlayerCount, this);
+        InstantiatePoints();
     }
 
     public float GetRandomX()
@@ -84,9 +51,21 @@ public class GameController : MonoBehaviour
         return Random.Range(-HalfFrustumHeight, HalfFrustumHeight);
     }
 
-    public void StartPressed(int number)
+    public Vector3 GetRandomPosition()
     {
+        return new Vector3(GetRandomX(), 0, GetRandomZ());
+    }
 
+    public void InitiateFrustums()
+    {
+        FrustumHeight = 2.0f * Mathf.Abs(CurrentCamera.transform.position.y) * Mathf.Tan(CurrentCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+        FrustumWidth = FrustumHeight * CurrentCamera.aspect;
+    }
+
+    public void InstantiatePoints()
+    {
+        foreach (var start in Starts)
+            start.GetComponent<StartController>().InstantiatePoints(PointCount);
     }
 
 }
