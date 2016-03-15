@@ -18,6 +18,7 @@ public class PlayerInstantiator : MonoBehaviour
     {
         var startObject = (GameObject) Instantiate(startPrefab, GetPlayerPosition(number, gameController), Quaternion.identity);
         startObject.GetComponent<MeshRenderer>().material = InstantiateMaterial(materialPrefab, number);
+        startObject.GetComponent<StartController>().ParticleSys.GetComponent<ParticleSystem>().startColor = Colors[number];
         StartController startController = startObject.GetComponent<StartController>();
         startController.PlayerNumber = number;
         startController.MainGameController = gameController;

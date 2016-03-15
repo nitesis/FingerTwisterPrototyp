@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using TouchScript.Behaviors;
 
 public class GameController : MonoBehaviour
 {
@@ -25,8 +26,8 @@ public class GameController : MonoBehaviour
 
     private float FrustumHeight;
     private float FrustumWidth;
-    private int PlayerCount;
     private int PlayersReady;
+    private int PlayersDestroyed;
     private GameObject[] Starts;
 
     void Start()
@@ -37,6 +38,7 @@ public class GameController : MonoBehaviour
     public void StartGame()
     {
         StartMenu.enabled = false;
+
         Starts = PlayerInstantiator.InstantiateStarts(StartPrefab, StartMaterial, PlayerCounter.PlayerCount, this);
         InstantiatePoints();
     }
@@ -66,6 +68,46 @@ public class GameController : MonoBehaviour
     {
         foreach (var start in Starts)
             start.GetComponent<StartController>().InstantiatePoints(PointCount);
+    }
+
+    public void PlayerReady()
+    {
+        PlayersReady++;
+        if (PlayersReady == PlayerCounter.PlayerCount)
+            foreach (GameObject start in Starts)
+                start.GetComponent<StartController>().Go();
+    }
+
+    public void PlayerNotReady()
+    {
+        PlayersReady--;
+    }
+
+    public void PlayerDestroyed()
+    {
+        PlayersDestroyed++;
+        if (PlayersDestroyed == PlayerCounter.PlayerCount)
+            Restart();
+    }
+
+    public void PlayerWon()
+    {
+        foreach (GameObject start in Starts) {
+            if (start != null)
+                start.GetComponent<Transformer>().enabled = false;
+        }
+        Restart();
+    }
+
+    private void Restart()
+    {
+        StartCoroutine(Rest());
+    }
+
+    private IEnumerator Rest()
+    {
+        yield return new WaitForSeconds(3);
+        Application.LoadLevel(Application.loadedLevel);
     }
 
 }
