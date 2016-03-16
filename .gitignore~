@@ -27,7 +27,6 @@ sysinfo.txt
 
 # FingerTwisterPrototype specific files
 /Assets/TouchScript/
-/Assets/TouchScript.meta
 /ProjectSettings/ProjectSettings.asset
 /ProjectSettings/ProjectVersion.txt
 
