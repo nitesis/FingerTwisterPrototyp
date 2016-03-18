@@ -13,12 +13,11 @@ public class PlayerInstantiator : MonoBehaviour
             starts[i] = InstantiateStart(startPrefab, materialPrefab, i, gameController);
         return starts;
     }
-    
+
     private static GameObject InstantiateStart(GameObject startPrefab, Material materialPrefab, int number, GameController gameController)
     {
         var startObject = (GameObject) Instantiate(startPrefab, GetPlayerPosition(number, gameController), Quaternion.identity);
         startObject.GetComponent<MeshRenderer>().material = InstantiateMaterial(materialPrefab, number);
-        startObject.GetComponent<StartController>().ParticleSys.GetComponent<ParticleSystem>().startColor = Colors[number];
         StartController startController = startObject.GetComponent<StartController>();
         startController.PlayerNumber = number;
         startController.MainGameController = gameController;

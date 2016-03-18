@@ -7,7 +7,8 @@ public class GameController : MonoBehaviour
 {
 
     public Camera CurrentCamera;
-    public Canvas StartMenu;
+    public GameObject StartMenu;
+    public GameObject CountdownCanvas;
     public CounterController PlayerCounter;
     public GameObject StartPrefab;
     public Material StartMaterial;
@@ -37,8 +38,7 @@ public class GameController : MonoBehaviour
 
     public void StartGame()
     {
-        StartMenu.enabled = false;
-
+        StartMenu.SetActive(false);
         Starts = PlayerInstantiator.InstantiateStarts(StartPrefab, StartMaterial, PlayerCounter.PlayerCount, this);
         InstantiatePoints();
     }
@@ -58,24 +58,11 @@ public class GameController : MonoBehaviour
         return new Vector3(GetRandomX(), 0, GetRandomZ());
     }
 
-    public void InitiateFrustums()
-    {
-        FrustumHeight = 2.0f * Mathf.Abs(CurrentCamera.transform.position.y) * Mathf.Tan(CurrentCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
-        FrustumWidth = FrustumHeight * CurrentCamera.aspect;
-    }
-
-    public void InstantiatePoints()
-    {
-        foreach (var start in Starts)
-            start.GetComponent<StartController>().InstantiatePoints(PointCount);
-    }
-
     public void PlayerReady()
     {
         PlayersReady++;
         if (PlayersReady == PlayerCounter.PlayerCount)
-            foreach (GameObject start in Starts)
-                start.GetComponent<StartController>().Go();
+            Go();
     }
 
     public void PlayerNotReady()
@@ -92,15 +79,51 @@ public class GameController : MonoBehaviour
 
     public void PlayerWon()
     {
-        foreach (GameObject start in Starts) {
-            if (start != null)
-                start.GetComponent<Transformer>().enabled = false;
-        }
+        Handheld.Vibrate();
         Restart();
+    }
+    
+    private void InitiateFrustums()
+    {
+        FrustumHeight = 2.0f * Mathf.Abs(CurrentCamera.transform.position.y) * Mathf.Tan(CurrentCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+        FrustumWidth = FrustumHeight * CurrentCamera.aspect;
+    }
+    
+    private void InstantiatePoints()
+    {
+        foreach (var start in Starts)
+            start.GetComponent<StartController>().InstantiatePoints(PointCount);
+    }
+
+    private void Go()
+    {
+        StartCoroutine(Countdown());
+    }
+
+    private IEnumerator Countdown()
+    {
+        var countdownText = CountdownCanvas.GetComponent<CountdownController>().CountdownText;
+        countdownText.text = "3";
+        Debug.Log("go");
+        CountdownCanvas.SetActive(true);
+        yield return new WaitForSeconds(1);
+        countdownText.text = "2";
+        yield return new WaitForSeconds(1);
+        countdownText.text = "1";
+        yield return new WaitForSeconds(1);
+        countdownText.text = "Go";
+        Handheld.Vibrate();
+        foreach (GameObject start in Starts)
+            start.GetComponent<StartController>().Go();
+        yield return new WaitForSeconds(1);
+        CountdownCanvas.SetActive(false);
     }
 
     private void Restart()
     {
+        foreach (GameObject start in Starts)
+            if (start != null)
+                start.GetComponent<Transformer>().enabled = false;
         StartCoroutine(Rest());
     }
 
