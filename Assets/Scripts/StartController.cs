@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using TouchScript.Gestures;
 using TouchScript.Behaviors;
 
@@ -68,12 +68,16 @@ public class StartController : MonoBehaviour
         MGameController.PlayerNotReady();
     }
 
-    public void InstantiatePoints(int number)
+	public void InstantiatePoints(int number, List<Vector2> freePoints, float radius)
     {
         PointsCounter = number;
         for (int i = 0; i < number; i++) {
-            var point = (GameObject) Instantiate(PointPrefab, MGameController.GetRandomPosition(), Quaternion.identity);
-            point.GetComponent<Light>().color = PlayerInstantiator.Colors[PlayerN];
+			var freePoint = freePoints [Random.Range (0, freePoints.Count - 1)];
+			freePoints.Remove (freePoint);
+			var offset = Random.insideUnitCircle * radius;
+			var position = new Vector3 (freePoint.x + offset.x, 0, freePoint.y + offset.y);
+			var point = (GameObject) Instantiate(PointPrefab, position, Quaternion.identity);
+            point.GetComponent<Light>().color = PlayerInstantiator.PointColors[PlayerN];
             point.GetComponent<PointController>().Tag = POINT_TAG + PlayerN;
         }
     }

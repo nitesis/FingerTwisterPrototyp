@@ -4,7 +4,8 @@ using System.Collections;
 public class PlayerInstantiator : MonoBehaviour
 {
 
-    public static Color[] Colors = { Color.red, Color.blue, Color.green, Color.yellow };
+	public static Color[] Colors = { Color.red, Color.blue, Color.green, Color.yellow };
+	public static Color[] PointColors = { Color.red, Color.blue, Color.green, Color.yellow };
 
     public static GameObject[] InstantiateStarts(GameObject startPrefab, Material materialPrefab, int count, GameController gameController)
     {
